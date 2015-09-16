@@ -49,7 +49,7 @@ $(document).ready(function () {
     });
   }
 
-  $('#form-novo-item').submit(function (evento) {
+  $('#form-novo-item').submit(function(evento) {
     evento.preventDefault();
     limparErros();
     var nome = $nomeInput.val();
