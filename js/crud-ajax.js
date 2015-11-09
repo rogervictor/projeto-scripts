@@ -4,8 +4,8 @@ $(document).ready(function () {
   var $helpBlocks = $('span.help-block');
   var $nomeInput = $('#nome-input');
   var $tabelaItens = $('#tabela-itens');
-  var $listarAjaxLoaderAdicionar = $('#listar-ajax-loader-adicionar');
-  var $listarAjaxLoaderTabela = $('#listar-ajax-loader-tabela');
+  var $ajaxLoaderAdicionar = $('#ajax-loader-adicionar');
+  var $ajaxLoaderTabela = $('#ajax-loader-tabela');
 
   $formWell.hide();
   $('#botao-novo-item').click(function () {
@@ -32,15 +32,17 @@ $(document).ready(function () {
     var $ajaxLoader = $linhaObjeto.find('img');
     $botao.click(function () {
       $botao.hide();
-      $ajaxLoader.fadeIn();
-      $.post('http://localhost:8080/mywishlist/delete',
-        {'id': item.id}).success(function () {
-          $linhaObjeto.remove();
-        }).error(function (erros) {
-          alert('Não é possível apagar no momento')
-          $ajaxLoader.hide();
-          $botao.fadeIn();
-        });
+      $ajaxLoader.show();
+      setTimeout(function(){
+	      $.post('delete',
+	        {'id': item.id}).success(function () {
+	          $linhaObjeto.remove();
+	        }).error(function (erros) {
+	          alert('Não é possível apagar no momento')
+	          $ajaxLoader.fadeOut();
+	          $botao.fadeIn();
+	        });
+      }, 1000);
     });
 
     $tabelaItens.append($linhaObjeto);
@@ -53,13 +55,13 @@ $(document).ready(function () {
     });
   }
 
-  $listarAjaxLoaderTabela.show()
-  $.get('http://localhost:8080/mywishlist/restore').success(
+  $ajaxLoaderTabela.show();
+  $.get('restore').success(
     listarItens
-  ).error(function () {
+  ).error(function() {
     alert('Não foi possível carregar a lista.');
   }).always(function () {
-    $listarAjaxLoaderTabela.fadeOut();
+    $ajaxLoaderTabela.fadeOut();
   });
 
   function mostrarErros(erros) {
@@ -71,36 +73,20 @@ $(document).ready(function () {
     });
   }
 
-  $('#form-categoria').submit(function (evento) {
+  $('#form-novo-item').submit(function (evento) {
   evento.preventDefault();
-  $listarAjaxLoaderAdicionar.show();
+  $ajaxLoaderAdicionar.show();
   limparErros();
   var nome = $nomeInput.val();
-  $.post('http://localhost:8080/mywishlist/new',
+  $.post('new',
     {'nome': nome}).success(function (item) {
-      adicionarCategoria(item);
+      adicionarItem(item);
       $nomeInput.val('');
     }).error(function(erros) {
-      mostrarErros(erros.responseJSON);
+      mostrarErros({'nome': "Campo Obrigatório"});
     }).always(function() {
-        $listarAjaxLoaderAdicionar.fadeOut;
+        $ajaxLoaderAdicionar.fadeOut();
       });
   });
-
-  //$('#form-novo-item').submit(function (evento) {
-  //  evento.preventDefault();
-  //  limparErros();
-  //  var nome = $nomeInput.val();
-  //  if (nome === '') {
-  //    mostrarErros({'nome': 'Campo Obrigatorio'});
-  //  } else {
-  //    adicionarItem({
-  //      "id": 5910974510923776,
-  //      "nome": nome,
-  //      "creation": "09/08/2015 16:44:20"});
-  //    $nomeInput.val('');
-  //  }
-  //
-  //});
 
 });
